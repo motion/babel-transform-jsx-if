@@ -1,25 +1,16 @@
-const idFn = _ => _
+const isIf = attribute => attribute.type === 'JSXAttribute' && attribute.name.name === 'if'
+const isntIf = x => !isIf(x)
 
-export default {
-  enter(path) {
-    const el = node.openingElement
-
-    // process attributes
-    if (!el.attributes) return
-
-    let iff = idFn
-
-    // find if
-    for (let attr of el.attributes) {
-      const attrName = attr.name && attr.name.name
-      const expr = attr.value && (attr.value.expression || t.literal(attr.value.value))
-
-      if (attrName == 'if') {
-        iff = node => t.logicalExpression('&&', t.callExpression(t.identifier('iff'), [expr]), node)
-      }
+export default ({ types: t }) => ({
+  visitor: {
+    JSXElement: ({ node }) => {
+      const attributes = node.openingElement.attributes
+      if (!attributes) return
+      const ifAttribute = attributes.filter(isIf)[0]
+      const opening = t.JSXOpeningElement(node.openingElement.name, attributes.filter(isntIf))
+      const tag = t.JSXElement(opening, node.closingElement, node.children)
+      const conditional = t.conditionalExpression(ifAttribute.value.expression, tag, t.nullLiteral())
+      path.replaceWith(conditional)
     }
-
-    // wrap if
-    return iff(node)
   }
-}
+})
