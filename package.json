@@ -1,10 +1,11 @@
 {
-  "name": "hoverglow",
+  "name": "babel-plugin-jsx-if",
   "version": "1.0.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
     "compile": "babel --presets es2015-sane,stage-0,react src --out-dir lib",
+    "watch": "npm run compile -- --watch",
     "prepublish": "npm run compile"
   },
   "author": "Nate Wienert",

@@ -3,14 +3,17 @@ const isntIf = x => !isIf(x)
 
 export default ({ types: t }) => ({
   visitor: {
-    JSXElement: ({ node }) => {
+    JSXElement: path => {
+      const { node } = path
       const attributes = node.openingElement.attributes
       if (!attributes) return
       const ifAttribute = attributes.filter(isIf)[0]
-      const opening = t.JSXOpeningElement(node.openingElement.name, attributes.filter(isntIf))
-      const tag = t.JSXElement(opening, node.closingElement, node.children)
-      const conditional = t.conditionalExpression(ifAttribute.value.expression, tag, t.nullLiteral())
-      path.replaceWith(conditional)
+      if (ifAttribute) {
+        const opening = t.JSXOpeningElement(node.openingElement.name, attributes.filter(isntIf))
+        const tag = t.JSXElement(opening, node.closingElement, node.children)
+        const conditional = t.conditionalExpression(ifAttribute.value.expression, tag, t.nullLiteral())
+        path.replaceWith(conditional)
+      }
     }
   }
 })
